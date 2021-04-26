@@ -1,20 +1,25 @@
 from selenium import webdriver
 import time
+import pandas as pd
+import urllib
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 
-contatos = ['+55 61 9999-9999', '+55 61 9999-9999']
-msg = 'Isso é um Teste!'
+msg = urllib.parse.quote("Isso é um Teste! Esse texto está sendo escrito pelo Robô Boladão \\n Você é uma Cobaia %0D Liga Noix qualquer coisa %0D Ihuuuuu %0D Isso ainda é um teste!")
+contatos_df = pd.read_excel(r"C:\Users\Will\Downloads\ContatosEnvia.xlsx", usecols=[0], names=["Numeros"])
+cont = int(len(contatos_df.index))
 
 driver = webdriver.Chrome(ChromeDriverManager().install())
 driver.get('https://web.whatsapp.com')
-time.sleep(30)
 
-def buscar_contato(contato):
+while len(driver.find_elements_by_id("side")) < 1:
+    time.sleep(1)
+
+def buscar_contato(contatos):
     campo_pesquisa = driver.find_element_by_xpath('//div[contains(@class,"copyable-text selectable-text")]')
     time.sleep(4)
     campo_pesquisa.click()
-    campo_pesquisa.send_keys(contato)
+    campo_pesquisa.send_keys(contatos)
     time.sleep(8)
     campo_pesquisa.send_keys(Keys.ENTER)
     time.sleep(5)
@@ -26,12 +31,12 @@ def enviar_mensagem(msg):
     campo_msg[1].send_keys(msg)
     time.sleep(5)
     campo_msg[1].send_keys(Keys.ENTER)
-    time.sleep(5)
+    time.sleep(10)
 
-for contato in contatos:
-    buscar_contato(contato)
-    enviar_mensagem(msg)
-# Campo de Mensagem 'copyable-text selectable-text'
-
-
-
+for num in range(cont):
+    if num != ' ':
+        contatos = contatos_df.iloc[num].loc["Numeros"]
+        buscar_contato(contatos)
+        enviar_mensagem(msg)
+    else:
+        exit(0)
